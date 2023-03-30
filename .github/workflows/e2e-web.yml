@@ -24,8 +24,8 @@ jobs:
       - name: Checkout PR Source Files
         uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3
 
-      - name: Set SHAs
-        uses: nrwl/nx-set-shas@v3
+      - name: Fetch main
+        run: git fetch origin main
 
       - name: Checkout client-config
         uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3
@@ -90,9 +90,16 @@ jobs:
 
   agents:
     name: Nx Cloud - Agents
-    uses: nrwl/ci/.github/workflows/nx-cloud-agents.yml@v0.11.3
-    with:
-      number-of-agents: 3
+    steps:
+      - name: setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: run agent
+        uses: nrwl/ci/.github/workflows/nx-cloud-agents.yml@v0.11.3
+        with:
+          number-of-agents: 3
 
   cypress-run:
     name: Test
