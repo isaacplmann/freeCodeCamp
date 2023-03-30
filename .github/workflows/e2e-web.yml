@@ -87,9 +87,9 @@ jobs:
 
       - name: Build
         run: |
-          pnpm exec nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
+          pnpm exec nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3 --base=remotes/origin/main
           pnpm exec nx-cloud record -- pnpm exec nx format:check
-          pnpm exec nx affected --target=build --parallel=3
+          pnpm exec nx affected --target=build --parallel=3 --base=remotes/origin/main
 
       - name: Create Client Artifact
         run: |
