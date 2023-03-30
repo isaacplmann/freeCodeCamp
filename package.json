@@ -18,11 +18,27 @@
   "homepage": "https://github.com/freeCodeCamp/freeCodeCamp#readme",
   "author": "freeCodeCamp <team@freecodecamp.org>",
   "main": "none",
+  "nx": {
+    "implicitDependencies": [
+      "@freecodecamp/client",
+      "@freecodecamp/curriculum",
+      "@freecodecamp/api-server",
+      "@freecodecamp/utils",
+      "@freecodecamp/config"
+    ],
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build"
+        ]
+      }
+    }
+  },
   "scripts": {
     "audit-challenges": "pnpm run create:config && ts-node tools/challenge-auditor/index.ts",
     "analyze-bundle": "webpack-bundle-analyzer",
     "prebuild": "npm-run-all create:*",
-    "build": "npm-run-all -p build:*",
+    "build": "nx exec -- echo build finished",
     "build-workers": "cd ./client && pnpm run prebuild",
     "build:client": "cd ./client && pnpm run build",
     "build:curriculum": "cd ./curriculum && pnpm run build",
@@ -37,8 +53,8 @@
     "clean:curriculum": "rm -rf ./config/curriculum.json",
     "clean:packages": "rm -rf ./node_modules ./**/node_modules",
     "clean:server": "rm -rf ./api-server/lib",
-    "create:config": "tsc -p config && pnpm run ensure-env && pnpm run download-trending",
-    "create:utils": "tsc -p utils",
+    "create:config": "nx build @freecodecamp/config && pnpm run ensure-env && pnpm run download-trending",
+    "create:utils": "nx build @freecodecamp/utils",
     "precypress": "node ./cypress-install.js",
     "cypress": "cypress",
     "cypress:dev:run": "pnpm run cypress run --spec cypress/e2e/default/**/*.{t,j}s",
@@ -106,6 +122,8 @@
     "@babel/preset-env": "7.20.2",
     "@babel/preset-react": "7.18.6",
     "@babel/preset-typescript": "7.21.0",
+    "@nrwl/nx-cloud": "latest",
+    "@nrwl/workspace": "^15.8.9",
     "@testing-library/cypress": "8.0.7",
     "@testing-library/dom": "8.20.0",
     "@testing-library/jest-dom": "5.16.5",
@@ -141,6 +159,7 @@
     "markdownlint": "0.27.0",
     "mock-fs": "5.2.0",
     "npm-run-all": "4.1.5",
+    "nx": "15.8.9",
     "prettier": "^2.8.0",
     "prismjs": "1.29.0",
     "process": "0.11.10",
