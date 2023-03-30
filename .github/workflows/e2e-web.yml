@@ -33,7 +33,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8.1.0
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3
@@ -45,36 +45,45 @@ jobs:
         run: cp sample.env .env
 
       - name: Install and Build
-        run: pnpm install
+        run: |
+          pnpm install
+          pnpm exec nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
+          pnpm exec nx-cloud record -- pnpm exec nx format:check
+          pnpm exec nx affected --target=build --parallel=3
 
-  nx-cloud-main:
-    name: Nx Cloud - Main Job
-    needs: setup
-    uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@v0.11.3
-    with:
-      main-branch-name: main
-      number-of-agents: 3
-      init-commands: |
-        pnpm exec nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
-      parallel-commands: |
-        pnpm exec nx-cloud record -- pnpm exec nx format:check
-      parallel-commands-on-agents: |
-        pnpm exec nx affected --target=build --parallel=3
-      final-commands: |
-        cp client-config/serve.json client/public/serve.json
-        tar -cf client-artifact.tar client/public
+      - name: Create Client Artifact
+        run: |
+          cp client-config/serve.json client/public/serve.json
+          tar -cf client-artifact.tar client/public
 
-        # - name: Upload Client Artifact
-        #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3
-        #   with:
-        #     name: client-artifact
-        #     path: client-artifact.tar
+      - name: Upload Client Artifact
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3
+        with:
+          name: client-artifact
+          path: client-artifact.tar
 
-        # - name: Upload Webpack Stats
-        #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3
-        #   with:
-        #     name: webpack-stats
-        #     path: client/public/stats.json
+      - name: Upload Webpack Stats
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3
+        with:
+          name: webpack-stats
+          path: client/public/stats.json
+
+  # nxcloudmain:
+  #   name: Nx Cloud - Main Job
+  #   needs: setup
+  #   uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@v0.11.3
+  #   with:
+  #     main-branch-name: main
+  #     number-of-agents: 3
+  #     init-commands: |
+  #       pnpm exec nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
+  #     parallel-commands: |
+  #       pnpm exec nx-cloud record -- pnpm exec nx format:check
+  #     parallel-commands-on-agents: |
+  #       pnpm exec nx affected --target=build --parallel=3
+  #     final-commands: |
+  #       cp client-config/serve.json client/public/serve.json
+  #       tar -cf client-artifact.tar client/public
 
   agents:
     name: Nx Cloud - Agents
@@ -85,7 +94,7 @@ jobs:
   cypress-run:
     name: Test
     runs-on: ubuntu-20.04
-    needs: nx-cloud-main
+    needs: setup
     strategy:
       fail-fast: false
       matrix:
