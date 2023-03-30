@@ -127,7 +127,6 @@ jobs:
 
   agents:
     name: Nx Cloud - Agents
-    needs: setup
     uses: nrwl/ci/.github/workflows/nx-cloud-agents.yml@v0.11.3
     with:
       number-of-agents: 3
