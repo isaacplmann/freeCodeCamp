@@ -53,6 +53,7 @@ jobs:
 
   nxcloudmain:
     name: Nx Cloud - Main Job
+    runs-on: ubuntu-20.04
     needs: setup
     steps:
       - name: Build
